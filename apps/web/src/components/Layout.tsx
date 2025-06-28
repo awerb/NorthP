@@ -50,8 +50,12 @@ export default function Layout() {
         {/* User Profile Section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200/60 bg-white">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-semibold">NP</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+              <img 
+                src="/src/assets/Northpoint Logo-05.png" 
+                alt="NP" 
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-900 truncate">NorthPoint Legal</p>
