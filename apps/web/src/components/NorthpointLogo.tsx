@@ -14,9 +14,9 @@ const NorthpointLogo: React.FC<LogoProps> = ({
   size = 'md' 
 }) => {
   const sizeClasses = {
-    sm: 'h-8',
-    md: 'h-12',
-    lg: 'h-16'
+    sm: 'h-6',
+    md: 'h-8',
+    lg: 'h-10'
   };
 
   if (variant === 'icon') {
