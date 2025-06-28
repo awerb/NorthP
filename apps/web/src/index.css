@@ -116,6 +116,19 @@
     @apply text-red-600;
   }
 
+  /* Additional Metrics and Stats */
+  .card-stat {
+    @apply bg-gradient-to-br from-white to-slate-50/50 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200 p-4;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-bold text-slate-900 mb-1;
+  }
+  
+  .stat-label {
+    @apply text-xs font-medium text-slate-600 uppercase tracking-wider;
+  }
+
   /* Status Indicators */
   .status-badge {
     @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
