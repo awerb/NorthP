@@ -168,7 +168,7 @@ const ReferralNurture: React.FC = () => {
             accept=".csv"
             onChange={handleFileUpload}
             disabled={uploadLoading}
-            className="block w-full text-sm text-np-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-np-blue file:text-np-white hover:file:bg-blue-600 disabled:opacity-50"
+            className="block w-full text-sm text-np-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-np-blue file:text-np-white hover:file:bg-blue-700 disabled:opacity-50"
           />
           {uploadLoading && (
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-np-blue"></div>
