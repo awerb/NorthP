@@ -160,8 +160,8 @@ const ReferralNurture: React.FC = () => {
       <Breadcrumb pageTitle="Referral Nurture" />
       
       {/* CSV Upload Section */}
-      <div className="bg-np-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">Upload Referral Targets</h2>
+      <div className="card mb-6">
+        <h2 className="section-title">Upload Referral Targets</h2>
         <div className="flex items-center space-x-4">
           <input
             type="file"
@@ -177,16 +177,16 @@ const ReferralNurture: React.FC = () => {
         {uploadMessage && (
           <p className={`mt-2 text-sm ${uploadMessage.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>
             {uploadMessage}
-            </p>
-          )}
-          <p className="mt-2 text-xs text-gray-500">
-            CSV should have columns: first_name, last_name, email, firm, city
           </p>
-        </div>
+        )}
+        <p className="mt-2 text-xs text-gray-500">
+          CSV should have columns: first_name, last_name, email, firm, city
+        </p>
+      </div>
 
-        {/* Check for Updates Section */}
-        <div className="bg-np-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">Check for News Updates</h2>
+      {/* Check for Updates Section */}
+        <div className="card mb-6">
+          <h2 className="section-title">Check for News Updates</h2>
           <button
             onClick={handleCheckUpdates}
             disabled={checkLoading}
@@ -233,7 +233,7 @@ const ReferralNurture: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-np-black uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-np-white divide-y divide-np-gray">
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {drafts.map((draft) => (
                       <tr 
                         key={draft.id} 
@@ -271,11 +271,10 @@ const ReferralNurture: React.FC = () => {
                 </table>
               </div>
             )}
-          </div>
 
           {/* Donut Chart */}
-          <div className="bg-np-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">Draft Status</h2>
+          <div className="card">
+            <h2 className="section-title">Draft Status</h2>
             {unsentCount > 0 || sentCount > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">

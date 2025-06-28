@@ -116,20 +116,34 @@ DB_PASSWORD=your_password
 
 ## 🚢 Deployment
 
+### Quick Deployment Links
+- 📖 **[Full Deployment Guide](DEPLOYMENT.md)** - Complete setup instructions
+- 🚢 **[Railway Backend Setup](RAILWAY_SETUP.md)** - Database and API deployment
+- 🌐 **[Netlify Frontend Setup](NETLIFY_SETUP.md)** - Frontend deployment guide
+
 ### Netlify (Frontend)
-- **Build Command**: `pnpm --filter=web build`
-- **Publish Directory**: `apps/web/dist`
+**Build Settings:**
+```
+Base directory: apps/web
+Build command: pnpm run build
+Publish directory: dist
+```
 - **Auto-deploy**: Enabled on main branch push
+- **Environment Variables**: `VITE_API_URL=https://your-railway-app.railway.app`
 
 ### Railway (Backend)
-- **Start Command**: `pnpm --filter=api dev`
+**Database Configuration:**
+```
+DATABASE_URL=${{ Postgres.DATABASE_URL }}
+```
 - **Auto-deploy**: Enabled on main branch push
+- **PostgreSQL**: Automatically provisioned
 - **Environment Variables**: Set in Railway dashboard
 
 ### Database Setup
 ```sql
--- Run the migration script
-psql $DATABASE_URL -f apps/api/scripts/initReferral.sql
+-- Initialize schema after deployment
+psql $DATABASE_URL < schema.sql
 ```
 
 ## 📊 API Endpoints

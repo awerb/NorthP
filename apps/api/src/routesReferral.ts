@@ -4,6 +4,7 @@ import multer from 'multer';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
 import OpenAI from 'openai';
+import { createDatabasePool, testDatabaseConnection } from './utils/database';
 
 // Extend Express Request type to include file property
 interface MulterRequest extends Request {
@@ -12,28 +13,25 @@ interface MulterRequest extends Request {
 
 const router = Router();
 
-// Initialize PostgreSQL connection
-let pool: Pool | null = null;
+// Initialize PostgreSQL connection using the utility function
+let pool: Pool | null = createDatabasePool();
 let demoMode = false;
 
-try {
-  pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'northpoint',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD,
-  });
-  
-  // Test the connection
-  pool.connect().catch((error) => {
-    console.warn('PostgreSQL connection failed for referrals, enabling demo mode:', error.message);
+// Test the database connection
+if (pool) {
+  testDatabaseConnection(pool).then((isConnected) => {
+    if (!isConnected) {
+      console.warn('PostgreSQL connection failed for referrals, enabling demo mode');
+      pool = null;
+      demoMode = true;
+    }
+  }).catch(() => {
+    console.warn('PostgreSQL connection test failed for referrals, enabling demo mode');
     pool = null;
     demoMode = true;
   });
-} catch (error) {
+} else {
   console.warn('PostgreSQL not configured for referrals, running in demo mode');
-  pool = null;
   demoMode = true;
 }
 

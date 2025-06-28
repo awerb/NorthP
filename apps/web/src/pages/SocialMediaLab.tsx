@@ -40,13 +40,13 @@ export default function SocialMediaLab() {
       <Breadcrumb pageTitle="Tweet Generator" />
 
       {/* Input Section */}
-      <div className="bg-np-white rounded-lg shadow-md p-6 mb-8">
-        <label htmlFor="prompt" className="block text-sm font-medium text-np-black mb-2 font-instrument">
+      <div className="card">
+        <label htmlFor="prompt" className="block text-sm font-medium text-np-black mb-2">
           Enter your prompt
         </label>
         <textarea
           id="prompt"
-          className="w-full border border-np-gray rounded-lg p-4 focus:ring-2 focus:ring-np-blue focus:border-transparent resize-none text-np-black"
+          className="w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-np-blue focus:border-transparent resize-none text-np-black font-brand"
           rows={4}
           placeholder="e.g., A personal injury lawyer celebrating a big win for their client..."
           value={prompt}
@@ -87,10 +87,10 @@ export default function SocialMediaLab() {
       {/* Results Section */}
       {results.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">Generated Captions</h2>
+          <h2 className="section-title">Generated Captions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((text, i) => (
-              <div key={i} className="bg-np-white rounded-lg shadow-md border border-np-gray p-6 hover:shadow-lg transition-shadow">
+              <div key={i} className="card hover:shadow-lg transition-shadow">
                 <div className="flex justify-between items-start mb-4">
                   <span className="bg-blue-100 text-np-blue text-xs font-medium px-2.5 py-0.5 rounded">
                     Caption {i + 1}

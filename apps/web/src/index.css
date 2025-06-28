@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss/preflight";
+@import "tailwindcss";
+
+/* Custom properties for Northpoint branding */
+:root {
+  --np-blue: #4F46E5;
+  --np-blue-light: #6366F1;
+  --np-blue-dark: #3B82F6;
+  --np-white: #FFFFFF;
+  --np-black: #000000;
+  --np-gray: #F8FAFC;
+  --np-gray-dark: #64748B;
+}
+
+/* Base font settings for consistency with Northpoint branding */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #F8FAFC;
+    color: #000000;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: #000000;
+  }
+}
+
+/* Custom Northpoint brand colors */
+/* Use these custom properties in your CSS if needed */
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    background-color: rgb(37 99 235);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background-color: rgb(29 78 216);
+  }
+  
+  .btn-secondary {
+    background-color: rgb(243 244 246);
+    color: rgb(17 24 39);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-secondary:hover {
+    background-color: rgb(229 231 235);
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border: 1px solid rgb(229 231 235);
+    padding: 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: black;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.025em;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: black;
+    margin-bottom: 1rem;
+  }
+}

@@ -6,8 +6,8 @@ export default function KeywordMonitor() {
     <div>
       <Breadcrumb pageTitle="SEO Keywords" />
       
-      <div className="bg-np-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">Google Search Console Integration</h2>
+      <div className="card">
+        <h2 className="section-title">Google Search Console Integration</h2>
         <p className="text-np-black mb-4">
           Monitor keyword performance for targeted search terms related to personal injury law in San Francisco.
         </p>

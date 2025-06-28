@@ -9,7 +9,10 @@
     "build:web": "pnpm --filter=web build",
     "start": "pnpm --filter=api start",
     "railway:build": "pnpm --filter=api build",
-    "railway:start": "pnpm --filter=api start"
+    "railway:start": "pnpm --filter=api start",
+    "db:setup": "./setup-db.sh",
+    "db:local": "./setup-local-db.sh",
+    "db:schema": "psql $DATABASE_URL < schema.sql"
   },
   "keywords": ["legal-tech", "express", "react", "typescript"],
   "author": "Northpoint Trial Law",

@@ -30,47 +30,7 @@
 - **Anthropic Claude**: ⚠️ Configured, needs API key verification
 - **Google Search Console**: ⚠️ Service account file needed
 - **News APIs**: ✅ Working in demo mode
-- **Database**: ✅ **Complete schema ready** (PostgreSQL setup available)
-
-## Database Setup
-
-### Quick Database Initialization
-
-**Option 1: Using the setup script**
-```bash
-# Set your database URL
-export DATABASE_URL="postgresql://user:password@host:port/database"
-
-# Run the automated setup
-npm run db:setup
-```
-
-**Option 2: Manual SQL execution**
-```bash
-# Using psql directly
-psql $DATABASE_URL < schema.sql
-
-# Or using the npm script
-npm run db:schema
-```
-
-**Option 3: For Railway deployment**
-```bash
-# After deploying to Railway and adding PostgreSQL:
-# 1. Copy the DATABASE_URL from Railway dashboard
-# 2. Run locally or in Railway console:
-psql "postgresql://postgres:PASSWORD@HOST:PORT/railway" < schema.sql
-```
-
-### Database Features
-The `schema.sql` includes:
-- ✅ **Referral Management**: Contact lists and email drafts
-- ✅ **AI Ranking Tracking**: Multi-model SEO analysis results
-- ✅ **Keyword Monitoring**: GSC integration tables
-- ✅ **News Tracking**: Article storage and query management
-- ✅ **Social Media**: Generated content tracking
-- ✅ **Performance Indexes**: Optimized for production queries
-- ✅ **Seed Data**: Target keywords and default monitoring queries
+- **Database**: ⚠️ PostgreSQL needed for production
 
 ## Quick Deployment Steps
 
@@ -100,28 +60,6 @@ The `schema.sql` includes:
    ```
 
 4. **Add PostgreSQL Database**:
-   - In Railway dashboard, click "Add Service" → "Database" → "PostgreSQL"
-   - Railway will automatically create the database and provide the connection URL
-
-5. **Configure Database Connection (IMPORTANT)**:
-   In Railway → Project → Settings → Shared Variables, add:
-   ```
-   Name: DATABASE_URL
-   Value: ${{ Postgres.DATABASE_URL }}
-   ```
-   This connects your application to the Railway PostgreSQL database automatically.
-
-6. **Initialize Database Schema**:
-   Once deployed, run the database setup in Railway console or locally:
-   ```bash
-   # Using Railway CLI (if installed)
-   railway run psql $DATABASE_URL < schema.sql
-   
-   # Or connect manually with the DATABASE_URL from Railway dashboard
-   psql "postgresql://postgres:PASSWORD@HOST:PORT/railway" < schema.sql
-   ```
-
-4. **Add PostgreSQL Database**:
    - In Railway, add PostgreSQL plugin
    - Copy the connection variables and update in Railway env vars:
      ```
@@ -137,17 +75,15 @@ The `schema.sql` includes:
 1. **Connect to Netlify**:
    - Go to [Netlify.com](https://netlify.com)
    - Connect your GitHub repository
-   - Configure build settings
+   - Configure build settings (already in `netlify.toml`)
 
-2. **Build Settings**:
+2. **Build Settings** (auto-configured):
    ```
-   Base directory: apps/web
-   Build command: pnpm run build
-   Publish directory: dist
+   Build command: pnpm --filter=web build
+   Publish directory: apps/web/dist
    ```
-   *(These settings are also configured in `netlify.toml` for automatic deployment)*
 
-3. **Environment Variables in Netlify**:
+3. **Environment Variables**:
    ```
    VITE_API_URL=https://your-railway-app.railway.app
    ```
