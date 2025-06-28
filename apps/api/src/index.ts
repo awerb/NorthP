@@ -5,6 +5,7 @@ import newsRoutes from './routesNews';
 import referralRoutes from './routesReferral';
 import aiRankRoutes from './routesAiRank';
 import keywordRoutes from './routesKeyword';
+import unionRoutes from './routesUnion';
 
 // Configure dotenv to load environment variables
 dotenv.config();
@@ -34,6 +35,9 @@ app.use('/ai', aiRankRoutes);
 
 // Mount router from './routesKeyword' at the path '/keywords'
 app.use('/keywords', keywordRoutes);
+
+// Mount router from './routesUnion' at the path '/union'
+app.use('/union', unionRoutes);
 
 // Listen on port 3002 and log message
 app.listen(3002, () => {
