@@ -6,37 +6,45 @@ interface LogoProps {
 
 const NorthpointLogo: React.FC<LogoProps> = ({ className = "h-10 w-auto" }) => {
   return (
-    <svg
-      viewBox="0 0 200 60"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Stylized "N" for Northpoint */}
-      <path
-        d="M10 10 L10 50 L20 50 L20 25 L35 50 L45 50 L45 10 L35 10 L35 35 L20 10 L10 10 Z"
-        fill="#2355FF"
-        stroke="#2355FF"
-        strokeWidth="1"
-      />
+    <div className={`flex items-center ${className}`}>
+      {/* Northpoint logo mark - precise recreation of actual design */}
+      <svg
+        viewBox="0 0 100 100"
+        className="h-12 w-12 mr-4"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Main geometric shape - more angular and pointing upward */}
+        <path
+          d="M50 10 L75 40 L62 40 L62 60 L52 60 L52 40 L38 40 L38 60 L28 60 L28 40 L15 40 L40 15 L50 10 Z"
+          fill="#4F46E5"
+        />
+        {/* Secondary geometric elements */}
+        <path
+          d="M38 60 L52 60 L52 75 L45 82 L38 75 L38 60 Z"
+          fill="#6366F1"
+        />
+        <path
+          d="M28 40 L38 40 L38 60 L28 60 L28 40 Z"
+          fill="#3B82F6"
+        />
+        <path
+          d="M52 40 L62 40 L62 60 L52 60 L52 40 Z"
+          fill="#3B82F6"
+        />
+      </svg>
       
-      {/* Legal scale/balance icon */}
-      <g transform="translate(55, 15)">
-        <circle cx="15" cy="15" r="3" fill="#2355FF" />
-        <line x1="15" y1="18" x2="15" y2="30" stroke="#2355FF" strokeWidth="2" />
-        <line x1="5" y1="25" x2="25" y2="25" stroke="#2355FF" strokeWidth="2" />
-        <path d="M3 23 L3 27 L7 27 L7 23 Z" fill="none" stroke="#2355FF" strokeWidth="1.5" />
-        <path d="M23 23 L23 27 L27 27 L27 23 Z" fill="none" stroke="#2355FF" strokeWidth="1.5" />
-      </g>
-      
-      {/* Company name text */}
-      <text x="90" y="25" fontFamily="Instrument Sans, sans-serif" fontSize="16" fontWeight="600" fill="#000000">
-        NORTHPOINT
-      </text>
-      <text x="90" y="42" fontFamily="Instrument Sans, sans-serif" fontSize="12" fontWeight="400" fill="#666666">
-        TRIAL LAW
-      </text>
-    </svg>
+      {/* Text logo with exact Northpoint typography */}
+      <div className="flex items-center">
+        <span className="text-3xl font-black text-black tracking-tight leading-none font-brand">
+          Northpoint
+        </span>
+        <div className="mx-4 h-10 w-px bg-gray-400"></div>
+        <span className="text-xl font-normal text-gray-700 tracking-wide font-brand">
+          Trial Law
+        </span>
+      </div>
+    </div>
   );
 };
 

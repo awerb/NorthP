@@ -6,8 +6,8 @@ export default function AIVisibilityChecker() {
     <div>
       <Breadcrumb pageTitle="AI Ranking Monitor" />
       
-      <div className="bg-np-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-np-black mb-4 font-instrument">AI Model Rankings</h2>
+      <div className="card">
+        <h2 className="section-title">AI Model Rankings</h2>
         <p className="text-np-black mb-4">
           Track how Northpoint Trial Law ranks across different AI models when users ask about personal injury lawyers in San Francisco.
         </p>

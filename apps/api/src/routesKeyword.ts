@@ -1,31 +1,29 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import gscClient from './utils/gscClient';
+import { createDatabasePool, testDatabaseConnection } from './utils/database';
 
 const router = Router();
 
-// Initialize PostgreSQL connection
-let pool: Pool | null = null;
+// Initialize PostgreSQL connection using the utility function
+let pool: Pool | null = createDatabasePool();
 let demoMode = false;
 
-try {
-  pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'northpoint',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD,
-  });
-  
-  // Test the connection
-  pool.connect().catch((error) => {
-    console.warn('PostgreSQL connection failed for keywords, enabling demo mode:', error.message);
+// Test the database connection
+if (pool) {
+  testDatabaseConnection(pool).then((isConnected) => {
+    if (!isConnected) {
+      console.warn('PostgreSQL connection failed for keywords, enabling demo mode');
+      pool = null;
+      demoMode = true;
+    }
+  }).catch(() => {
+    console.warn('PostgreSQL connection test failed for keywords, enabling demo mode');
     pool = null;
     demoMode = true;
   });
-} catch (error) {
+} else {
   console.warn('PostgreSQL not configured for keywords, running in demo mode');
-  pool = null;
   demoMode = true;
 }
 
@@ -37,6 +35,7 @@ const initDatabase = async () => {
   }
   
   try {
+    // Create both tables for backward compatibility and new structure
     await pool.query(`
       CREATE TABLE IF NOT EXISTS keyword_snapshots (
         id SERIAL PRIMARY KEY,
@@ -48,24 +47,28 @@ const initDatabase = async () => {
         position DECIMAL(5,2) DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(keyword, date)
-      )
+      );
+      
+      CREATE TABLE IF NOT EXISTS keyword_metrics (
+        id SERIAL PRIMARY KEY,
+        keyword TEXT NOT NULL,
+        average_position FLOAT,
+        ctr FLOAT,
+        impressions INTEGER,
+        clicks INTEGER,
+        snapshot_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(keyword, snapshot_time)
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_keyword_metrics_keyword ON keyword_metrics(keyword);
+      CREATE INDEX IF NOT EXISTS idx_keyword_metrics_time ON keyword_metrics(snapshot_time);
     `);
     
-    // Create indexes for better performance
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_keyword_snapshots_keyword ON keyword_snapshots(keyword);
-      CREATE INDEX IF NOT EXISTS idx_keyword_snapshots_date ON keyword_snapshots(date);
-      CREATE INDEX IF NOT EXISTS idx_keyword_snapshots_keyword_date ON keyword_snapshots(keyword, date);
-    `);
-    
-    console.log('Keyword tracking database initialized');
+    console.log('Keyword database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing keyword database:', error);
   }
 };
-
-// Initialize on startup
-initDatabase();
 
 // In-memory storage for demo mode
 let memorySnapshots: Array<{
@@ -80,11 +83,13 @@ let memorySnapshots: Array<{
 }> = [];
 let nextId = 1;
 
-// Target keywords to track
+// Target keywords for monitoring
 const TARGET_KEYWORDS = [
-  "personal injury lawyer sf",
-  "wrongful death lawyer sf", 
-  "car accident attorney sf"
+  'personal injury lawyer sf',
+  'san francisco personal injury attorney', 
+  'car accident lawyer san francisco',
+  'slip and fall attorney sf',
+  'workers compensation lawyer san francisco'
 ];
 
 // Interface for keyword data
@@ -139,6 +144,39 @@ const storeSnapshot = async (snapshot: KeywordSnapshot): Promise<void> => {
     `, [snapshot.keyword, snapshot.date, snapshot.clicks, snapshot.impressions, snapshot.ctr, snapshot.position]);
   } catch (error) {
     console.error('Error storing keyword snapshot:', error);
+    throw error;
+  }
+};
+
+// Store GSC data in keyword_metrics table
+const storeKeywordMetrics = async (keywordData: any[]) => {
+  if (!pool || demoMode) {
+    console.log('Demo mode: would store keyword metrics');
+    return;
+  }
+
+  try {
+    for (const data of keywordData) {
+      await pool.query(`
+        INSERT INTO keyword_metrics (keyword, average_position, ctr, impressions, clicks, snapshot_time)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        ON CONFLICT (keyword, snapshot_time) DO UPDATE SET
+          average_position = EXCLUDED.average_position,
+          ctr = EXCLUDED.ctr,
+          impressions = EXCLUDED.impressions,
+          clicks = EXCLUDED.clicks
+      `, [
+        data.keyword,
+        data.position || 0,
+        data.ctr || 0,
+        data.impressions || 0,
+        data.clicks || 0
+      ]);
+    }
+    
+    console.log(`Stored metrics for ${keywordData.length} keywords`);
+  } catch (error) {
+    console.error('Error storing keyword metrics:', error);
     throw error;
   }
 };
@@ -247,6 +285,9 @@ router.post('/update', async (req: Request, res: Response): Promise<void> => {
         console.error('Error storing snapshot:', error);
       }
     }
+
+    // Store metrics in keyword_metrics table
+    await storeKeywordMetrics(keywordData);
     
     res.json({
       success: true,
@@ -322,6 +363,52 @@ router.get('/status', async (req: Request, res: Response): Promise<void> => {
     console.error('Error checking keyword status:', error);
     res.status(500).json({ 
       error: 'Failed to check status',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// GET /keywords/metrics - Get current keyword performance metrics
+router.get('/metrics', async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (demoMode || !pool) {
+      // Return demo data
+      res.json({
+        success: true,
+        metrics: TARGET_KEYWORDS.map(keyword => ({
+          keyword,
+          average_position: Math.round((Math.random() * 50 + 10) * 100) / 100,
+          ctr: Math.round((Math.random() * 0.05 + 0.01) * 10000) / 10000,
+          impressions: Math.round(Math.random() * 1000 + 100),
+          clicks: Math.round(Math.random() * 50 + 5),
+          last_updated: new Date().toISOString(),
+        })),
+        demo: true,
+      });
+      return;
+    }
+
+    const result = await pool.query(`
+      SELECT DISTINCT ON (keyword) 
+        keyword,
+        average_position,
+        ctr,
+        impressions,
+        clicks,
+        snapshot_time as last_updated
+      FROM keyword_metrics 
+      ORDER BY keyword, snapshot_time DESC
+    `);
+
+    res.json({
+      success: true,
+      metrics: result.rows,
+      demo: false,
+    });
+  } catch (error) {
+    console.error('Error fetching keyword metrics:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch keyword metrics',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

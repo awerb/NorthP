@@ -1,10 +1,12 @@
 import { google } from 'googleapis';
-import { JWT } from 'google-auth-library';
+import { GoogleAuth } from 'google-auth-library';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Google Search Console client configuration
 class GSCClient {
-  private jwtClient: JWT | null = null;
-  private webmasters: any = null;
+  private auth: GoogleAuth | null = null;
+  private searchConsole: any = null;
   private readonly siteUrl = 'https://northpointtriallaw.com/';
 
   constructor() {
@@ -13,46 +15,50 @@ class GSCClient {
 
   private initializeClient() {
     try {
-      const serviceKeyBase64 = process.env.GSC_SERVICE_KEY;
+      const serviceKeyPath = process.env.GSC_SERVICE_KEY;
       
-      if (!serviceKeyBase64) {
+      if (!serviceKeyPath) {
         console.warn('GSC_SERVICE_KEY not configured');
         return;
       }
 
-      // Decode base64 service key
-      const serviceKeyJson = Buffer.from(serviceKeyBase64, 'base64').toString('utf-8');
-      const serviceKey = JSON.parse(serviceKeyJson);
+      // Resolve the path relative to the project root
+      const fullPath = path.resolve(process.cwd(), serviceKeyPath);
+      
+      // Check if the service key file exists
+      if (!fs.existsSync(fullPath)) {
+        console.warn(`GSC service key file not found at: ${fullPath}`);
+        return;
+      }
 
-      // Create JWT client
-      this.jwtClient = new JWT({
-        email: serviceKey.client_email,
-        key: serviceKey.private_key,
+      // Create Google Auth instance
+      this.auth = new google.auth.GoogleAuth({
+        keyFile: fullPath,
         scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
       });
 
-      // Initialize webmasters API
-      this.webmasters = google.webmasters({
-        version: 'v3',
-        auth: this.jwtClient,
+      // Initialize Search Console API
+      this.searchConsole = google.searchconsole({
+        version: 'v1',
+        auth: this.auth,
       });
 
       console.log('Google Search Console client initialized successfully');
     } catch (error) {
       console.error('Error initializing GSC client:', error);
-      this.jwtClient = null;
-      this.webmasters = null;
+      this.auth = null;
+      this.searchConsole = null;
     }
   }
 
   async authenticate(): Promise<boolean> {
-    if (!this.jwtClient) {
+    if (!this.auth) {
       console.error('GSC client not initialized');
       return false;
     }
 
     try {
-      await this.jwtClient.authorize();
+      await this.auth.getAccessToken();
       return true;
     } catch (error) {
       console.error('GSC authentication failed:', error);
@@ -71,7 +77,7 @@ class GSCClient {
     }>;
     rowLimit?: number;
   }) {
-    if (!this.webmasters || !this.jwtClient) {
+    if (!this.searchConsole || !this.auth) {
       throw new Error('GSC client not initialized');
     }
 
@@ -97,7 +103,7 @@ class GSCClient {
 
       console.log('GSC API request:', JSON.stringify(request, null, 2));
 
-      const response = await this.webmasters.searchanalytics.query(request);
+      const response = await this.searchConsole.searchanalytics.query(request);
       return response.data;
     } catch (error) {
       console.error('Error fetching search analytics:', error);
@@ -157,7 +163,7 @@ class GSCClient {
   }
 
   isInitialized(): boolean {
-    return this.jwtClient !== null && this.webmasters !== null;
+    return this.auth !== null && this.searchConsole !== null;
   }
 }
 

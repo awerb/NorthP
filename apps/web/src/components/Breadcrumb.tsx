@@ -26,19 +26,19 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
   const routeTitle = getRouteTitle(location.pathname);
   
   return (
-    <div className="mb-6">
-      <nav className="text-sm text-np-gray mb-2">
-        <span className="text-np-blue font-medium">Northpoint</span>
-        <span className="mx-2">→</span>
+    <div className="mb-8">
+      <nav className="text-sm text-gray-500 mb-3">
+        <span className="text-blue-600 font-medium">Northpoint</span>
+        <span className="mx-2 text-gray-300">→</span>
         <span>{routeTitle}</span>
         {pageTitle && (
           <>
-            <span className="mx-2">→</span>
-            <span className="text-np-black font-medium">{pageTitle}</span>
+            <span className="mx-2 text-gray-300">→</span>
+            <span className="text-black font-medium">{pageTitle}</span>
           </>
         )}
       </nav>
-      <h1 className="text-2xl font-bold font-instrument text-np-black">
+      <h1 className="page-title">
         {pageTitle || routeTitle}
       </h1>
     </div>

@@ -1,31 +1,29 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import OpenAI from 'openai';
+import { createDatabasePool, testDatabaseConnection } from './utils/database';
 
 const router = Router();
 
-// Initialize PostgreSQL connection (shared from other modules)
-let pool: Pool | null = null;
+// Initialize PostgreSQL connection using the utility function
+let pool: Pool | null = createDatabasePool();
 let demoMode = false;
 
-try {
-  pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'northpoint',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD,
-  });
-  
-  // Test the connection
-  pool.connect().catch((error) => {
-    console.warn('PostgreSQL connection failed for AI ranking, enabling demo mode:', error.message);
+// Test the database connection
+if (pool) {
+  testDatabaseConnection(pool).then((isConnected) => {
+    if (!isConnected) {
+      console.warn('PostgreSQL connection failed for AI ranking, enabling demo mode');
+      pool = null;
+      demoMode = true;
+    }
+  }).catch(() => {
+    console.warn('PostgreSQL connection test failed for AI ranking, enabling demo mode');
     pool = null;
     demoMode = true;
   });
-} catch (error) {
+} else {
   console.warn('PostgreSQL not configured for AI ranking, running in demo mode');
-  pool = null;
   demoMode = true;
 }
 
@@ -182,7 +180,7 @@ const queryAnthropic = async (prompt: string): Promise<string> => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -292,7 +290,14 @@ const storeResult = async (model: string, score: number, rank: number | null): P
 // Main route handler
 router.post('/rank', async (req: Request, res: Response): Promise<void> => {
   try {
-    const prompt = "Who are the best personal injury lawyers in San Francisco?";
+    const { searchQuery, firmDescription } = req.body;
+    
+    if (!searchQuery || !firmDescription) {
+      res.status(400).json({ error: 'searchQuery and firmDescription are required' });
+      return;
+    }
+    
+    const prompt = `Who are the best ${searchQuery} lawyers? Please list the top 5 lawyers or law firms specializing in ${searchQuery}. Include ${firmDescription} if they are among the top practitioners in this field.`;
     const timestamp = new Date().toISOString();
     const results: AIRankResult[] = [];
     
@@ -388,6 +393,89 @@ router.get('/test', (req: Request, res: Response) => {
     demo: demoMode,
     memoryResults: demoMode ? memoryResults.length : 'N/A',
   });
+});
+
+// Debug endpoint to see AI model responses
+router.post('/debug', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      res.status(400).json({ error: 'prompt is required' });
+      return;
+    }
+    
+    const results: any = {};
+    
+    // Test OpenAI
+    try {
+      console.log('Testing OpenAI...');
+      const openaiResponse = await queryOpenAI(prompt);
+      results.openai = {
+        success: true,
+        response: openaiResponse,
+        lawyers: parseTopLawyers(openaiResponse)
+      };
+    } catch (error) {
+      results.openai = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+    
+    // Test Claude/Anthropic
+    try {
+      console.log('Testing Claude...');
+      const claudeResponse = await queryAnthropic(prompt);
+      results.claude = {
+        success: true,
+        response: claudeResponse,
+        lawyers: parseTopLawyers(claudeResponse)
+      };
+    } catch (error) {
+      results.claude = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+    
+    // Test Gemini
+    try {
+      console.log('Testing Gemini...');
+      const geminiResponse = await queryGemini(prompt);
+      results.gemini = {
+        success: true,
+        response: geminiResponse,
+        lawyers: parseTopLawyers(geminiResponse)
+      };
+    } catch (error) {
+      results.gemini = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+    
+    // Test Cohere
+    try {
+      console.log('Testing Cohere...');
+      const cohereResponse = await queryCohere(prompt);
+      results.cohere = {
+        success: true,
+        response: cohereResponse,
+        lawyers: parseTopLawyers(cohereResponse)
+      };
+    } catch (error) {
+      results.cohere = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Debug endpoint error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;
