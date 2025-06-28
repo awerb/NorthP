@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import "tailwindcss/preflight";
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Custom properties for Northpoint branding */
+/* Custom properties for professional dashboard design */
 :root {
   --np-blue: #4F46E5;
   --np-blue-light: #6366F1;
@@ -11,9 +12,21 @@
   --np-black: #000000;
   --np-gray: #F8FAFC;
   --np-gray-dark: #64748B;
+  
+  /* Professional color palette */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
 }
 
-/* Base font settings for consistency with Northpoint branding */
+/* Base font settings for professional appearance */
 @layer base {
   html {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -25,69 +38,185 @@
     font-variation-settings: 'opsz' 32;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #F8FAFC;
-    color: #000000;
+    background-color: #f8fafc;
+    color: #0f172a;
+    line-height: 1.5;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
     letter-spacing: -0.025em;
-    color: #000000;
+    color: #0f172a;
+  }
+  
+  * {
+    border-color: #e2e8f0;
   }
 }
 
-/* Custom Northpoint brand colors */
-/* Use these custom properties in your CSS if needed */
-
-/* Custom component styles */
+/* Professional component styles */
 @layer components {
+  /* Button Components */
   .btn-primary {
-    background-color: rgb(37 99 235);
-    color: white;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
-  }
-  
-  .btn-primary:hover {
-    background-color: rgb(29 78 216);
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
   }
   
   .btn-secondary {
-    background-color: rgb(243 244 246);
-    color: rgb(17 24 39);
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium px-4 py-2.5 rounded-lg border border-slate-300 transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
   }
   
-  .btn-secondary:hover {
-    background-color: rgb(229 231 235);
+  .btn-ghost {
+    @apply bg-transparent hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium px-4 py-2.5 rounded-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
   }
   
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
+  }
+
+  /* Card Components */
   .card {
-    background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    border: 1px solid rgb(229 231 235);
-    padding: 1.5rem;
+    @apply bg-white rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200 p-6;
   }
   
+  .card-header {
+    @apply border-b border-slate-200/60 pb-4 mb-6;
+  }
+  
+  .card-compact {
+    @apply bg-white rounded-lg border border-slate-200/60 shadow-sm p-4;
+  }
+  
+  .card-elevated {
+    @apply bg-white rounded-xl border border-slate-200/60 shadow-lg hover:shadow-xl transition-all duration-300 p-6;
+  }
+
+  /* Metrics and KPI Cards */
+  .metric-card {
+    @apply bg-gradient-to-br from-white to-slate-50/50 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200 p-6;
+  }
+  
+  .metric-value {
+    @apply text-3xl font-bold text-slate-900 mb-1;
+  }
+  
+  .metric-label {
+    @apply text-sm font-medium text-slate-600 mb-2;
+  }
+  
+  .metric-change {
+    @apply inline-flex items-center text-xs font-medium;
+  }
+  
+  .metric-change.positive {
+    @apply text-emerald-600;
+  }
+  
+  .metric-change.negative {
+    @apply text-red-600;
+  }
+
+  /* Status Indicators */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-badge.success {
+    @apply bg-emerald-100 text-emerald-800;
+  }
+  
+  .status-badge.warning {
+    @apply bg-amber-100 text-amber-800;
+  }
+  
+  .status-badge.error {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .status-badge.info {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  /* Typography */
   .page-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: black;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.025em;
+    @apply text-2xl font-semibold text-slate-900 mb-1;
+  }
+  
+  .page-subtitle {
+    @apply text-sm text-slate-600 mb-8;
   }
   
   .section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: black;
-    margin-bottom: 1rem;
+    @apply text-lg font-semibold text-slate-900 mb-4;
+  }
+  
+  .section-subtitle {
+    @apply text-sm text-slate-600 mb-6;
+  }
+
+  /* Form Elements */
+  .input {
+    @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-slate-900 placeholder-slate-400;
+  }
+  
+  .textarea {
+    @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-slate-900 placeholder-slate-400 resize-vertical min-h-[100px];
+  }
+  
+  .select {
+    @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-slate-900;
+  }
+
+  /* Data Tables */
+  .table {
+    @apply w-full border-collapse;
+  }
+  
+  .table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200;
+  }
+  
+  .table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-slate-900 border-b border-slate-200;
+  }
+  
+  .table tbody tr:hover {
+    @apply bg-slate-50;
+  }
+
+  /* Action Items and Lists */
+  .action-item {
+    @apply flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 cursor-pointer;
+  }
+  
+  .action-item:hover {
+    @apply bg-slate-50;
+  }
+
+  /* Progress Bars */
+  .progress {
+    @apply w-full bg-slate-200 rounded-full h-2 overflow-hidden;
+  }
+  
+  .progress-bar {
+    @apply h-full bg-blue-600 rounded-full transition-all duration-300;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-slate-200 rounded;
+  }
+  
+  .loading-spinner {
+    @apply animate-spin h-5 w-5 border-2 border-slate-300 border-t-blue-600 rounded-full;
+  }
+
+  /* Utilities */
+  .divider {
+    @apply border-t border-slate-200 my-6;
+  }
+  
+  .glass {
+    @apply bg-white/70 backdrop-blur-sm border border-white/20;
   }
 }
