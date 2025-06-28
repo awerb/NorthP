@@ -1,0 +1,19 @@
+{
+  "name": "northpoint-legal-tech",
+  "version": "1.0.0",
+  "description": "Legal-tech app with Express backend and React frontend",
+  "scripts": {
+    "dev:api": "pnpm --filter=api dev",
+    "dev:web": "pnpm --filter=web dev",
+    "build:api": "pnpm --filter=api build",
+    "build:web": "pnpm --filter=web build",
+    "start": "pnpm --filter=api dev",
+    "railway:start": "pnpm --filter=api dev"
+  },
+  "keywords": ["legal-tech", "express", "react", "typescript"],
+  "author": "Northpoint Trial Law",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*"
+  ]
+}
