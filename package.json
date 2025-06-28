@@ -7,8 +7,9 @@
     "dev:web": "pnpm --filter=web dev",
     "build:api": "pnpm --filter=api build",
     "build:web": "pnpm --filter=web build",
-    "start": "pnpm --filter=api dev",
-    "railway:start": "pnpm --filter=api dev"
+    "start": "pnpm --filter=api start",
+    "railway:build": "pnpm --filter=api build",
+    "railway:start": "pnpm --filter=api start"
   },
   "keywords": ["legal-tech", "express", "react", "typescript"],
   "author": "Northpoint Trial Law",
