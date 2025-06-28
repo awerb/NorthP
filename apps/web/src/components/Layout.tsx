@@ -19,12 +19,12 @@ export default function Layout() {
   return (
     <div className="flex h-screen bg-slate-50 font-brand">
       {/* Professional Sidebar */}
-      <aside className="w-72 bg-white border-r border-slate-200/60 shadow-sm">
-        <div className="p-6 border-b border-slate-200/60">
+      <aside className="w-60 bg-white border-r border-slate-200/60 shadow-sm">
+        <div className="p-4 border-b border-slate-200/60">
           <BrandHeader />
         </div>
         
-        <nav className="px-4 py-6 space-y-1">
+        <nav className="px-3 py-4 space-y-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.to;
             return (
@@ -93,7 +93,7 @@ export default function Layout() {
           </header>
           
           {/* Page Content */}
-          <div className="flex-1 p-8 overflow-auto">
+          <div className="flex-1 p-6 overflow-auto">
             <Outlet />
           </div>
         </div>
