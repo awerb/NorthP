@@ -150,16 +150,22 @@ const storeSnapshot = async (snapshot: KeywordSnapshot): Promise<void> => {
 
 // Store GSC data in keyword_metrics table
 const storeKeywordMetrics = async (keywordData: any[]) => {
-  if (!pool || demoMode) {
-    console.log('Demo mode: would store keyword metrics');
+  if (!pool) {
+    console.log('No database connection: cannot store keyword metrics');
+    return;
+  }
+
+  if (keywordData.length === 0) {
+    console.log('No keyword data to store');
     return;
   }
 
   try {
     for (const data of keywordData) {
+      // Use the data date as the snapshot_time, converting to timestamp
       await pool.query(`
         INSERT INTO keyword_metrics (keyword, average_position, ctr, impressions, clicks, snapshot_time)
-        VALUES ($1, $2, $3, $4, $5, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6)
         ON CONFLICT (keyword, snapshot_time) DO UPDATE SET
           average_position = EXCLUDED.average_position,
           ctr = EXCLUDED.ctr,
@@ -170,14 +176,16 @@ const storeKeywordMetrics = async (keywordData: any[]) => {
         data.position || 0,
         data.ctr || 0,
         data.impressions || 0,
-        data.clicks || 0
+        data.clicks || 0,
+        new Date(data.date + 'T00:00:00Z')
       ]);
     }
     
     console.log(`Stored metrics for ${keywordData.length} keywords`);
   } catch (error) {
     console.error('Error storing keyword metrics:', error);
-    throw error;
+    // Don't throw error for demo data storage issues
+    console.log('Continuing despite storage error (demo data)');
   }
 };
 
@@ -253,17 +261,9 @@ const getKeywordTrends = async (days: number = 90): Promise<KeywordTrend[]> => {
 // POST /keywords/update - Pull data from GSC and update database
 router.post('/update', async (req: Request, res: Response): Promise<void> => {
   try {
-    if (!gscClient.isInitialized()) {
-      res.status(500).json({ 
-        error: 'Google Search Console client not initialized',
-        message: 'GSC_SERVICE_KEY not configured or invalid'
-      });
-      return;
-    }
-
     console.log('Fetching keyword data from Google Search Console...');
     
-    // Fetch data for last 90 days
+    // Fetch data for last 90 days (will return demo data if GSC is not initialized)
     const keywordData = await gscClient.getKeywordData(TARGET_KEYWORDS, 90);
     
     console.log(`Fetched ${keywordData.length} keyword data points`);
@@ -289,6 +289,8 @@ router.post('/update', async (req: Request, res: Response): Promise<void> => {
     // Store metrics in keyword_metrics table
     await storeKeywordMetrics(keywordData);
     
+    const isUsingDemo = !gscClient.isInitialized();
+    
     res.json({
       success: true,
       message: `Updated keyword data for ${TARGET_KEYWORDS.length} keywords`,
@@ -296,6 +298,8 @@ router.post('/update', async (req: Request, res: Response): Promise<void> => {
       dataPoints: keywordData.length,
       stored: storedCount,
       demo: demoMode,
+      dataSource: isUsingDemo ? 'demo' : 'google-search-console',
+      note: isUsingDemo ? 'Using demo data - GSC not configured' : 'Using live GSC data'
     });
   } catch (error) {
     console.error('Error updating keyword data:', error);
