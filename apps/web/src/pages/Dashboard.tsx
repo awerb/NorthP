@@ -1,12 +1,73 @@
 import { useState, useEffect } from 'react';
 
+interface HealthService {
+  status: string;
+  latency: string;
+  statusType: string;
+}
+
+interface HealthData {
+  services: {
+    api: HealthService;
+    database: HealthService;
+    ai: HealthService;
+    searchConsole: HealthService;
+  };
+  overall: string;
+}
+
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [healthData, setHealthData] = useState<HealthData | null>(null);
+  const [healthLoading, setHealthLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const fetchHealthData = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/health/status');
+        const data = await response.json();
+        if (data.success) {
+          setHealthData(data.health);
+        }
+      } catch (error) {
+        console.error('Failed to fetch health data:', error);
+      } finally {
+        setHealthLoading(false);
+      }
+    };
+
+    fetchHealthData();
+    // Refresh health data every 30 seconds
+    const healthTimer = setInterval(fetchHealthData, 30000);
+    
+    return () => clearInterval(healthTimer);
+  }, []);
+
+  const getStatusType = (status: string): string => {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('online') || statusLower.includes('connected') || statusLower.includes('healthy')) {
+      return 'success';
+    } else if (statusLower.includes('demo') || statusLower.includes('warning')) {
+      return 'warning';
+    } else {
+      return 'error';
+    }
+  };
+
+  const getServiceName = (key: string): string => {
+    const serviceNames: { [key: string]: string } = {
+      api: 'API Server',
+      database: 'Database',
+      ai: 'AI Services',
+      searchConsole: 'Search Console'
+    };
+    return serviceNames[key] || key;
+  };
 
   const kpiData = [
     {
@@ -207,31 +268,37 @@ export default function Dashboard() {
             <p className="text-sm text-slate-600">Real-time status of your integrated services</p>
           </div>
           <div className="space-y-3">
-            {[
-              { service: "API Server", status: "Online", latency: "45ms", statusType: "success" },
-              { service: "Database", status: "Demo Mode", latency: "12ms", statusType: "warning" },
-              { service: "AI Services", status: "Connected", latency: "340ms", statusType: "success" },
-              { service: "Search Console", status: "Setup Required", latency: "--", statusType: "error" }
-            ].map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    item.statusType === 'success' ? 'bg-emerald-400' :
-                    item.statusType === 'warning' ? 'bg-amber-400' :
-                    'bg-red-400'
-                  }`}></div>
-                  <span className="text-sm font-medium text-slate-900">{item.service}</span>
-                </div>
-                <div className="text-right">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    item.statusType === 'success' ? 'bg-emerald-100 text-emerald-800' :
-                    item.statusType === 'warning' ? 'bg-amber-100 text-amber-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>{item.status}</span>
-                  <p className="text-xs text-slate-500 mt-1">{item.latency}</p>
-                </div>
+            {healthLoading ? (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-slate-500 mt-2">Loading system status...</p>
               </div>
-            ))}
+            ) : healthData ? (
+              Object.entries(healthData.services).map(([key, service]) => (
+                <div key={key} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-2 h-2 rounded-full ${
+                      getStatusType(service.status) === 'success' ? 'bg-emerald-400' :
+                      getStatusType(service.status) === 'warning' ? 'bg-amber-400' :
+                      'bg-red-400'
+                    }`}></div>
+                    <span className="text-sm font-medium text-slate-900">{getServiceName(key)}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      getStatusType(service.status) === 'success' ? 'bg-emerald-100 text-emerald-800' :
+                      getStatusType(service.status) === 'warning' ? 'bg-amber-100 text-amber-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>{service.status}</span>
+                    <p className="text-xs text-slate-500 mt-1">{service.latency}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-slate-500">Unable to load system status</p>
+              </div>
+            )}
           </div>
         </div>
 
