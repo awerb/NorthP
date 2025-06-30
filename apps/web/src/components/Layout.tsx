@@ -55,7 +55,7 @@ export default function Layout() {
               <NorthpointLogo variant="icon" size="sm" className="w-6 h-6 object-contain" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">NorthPoint Legal</p>
+              <p className="text-sm font-medium text-slate-900 truncate">Northpoint Trial Law</p>
               <p className="text-xs text-slate-500 truncate">Professional Dashboard</p>
             </div>
           </div>
