@@ -1,14 +1,12 @@
+import './config'; // Load environment variables first
 import express from 'express';
-import dotenv from 'dotenv';
 import socialRoutes from './routesSocial';
 import newsRoutes from './routesNews';
 import referralRoutes from './routesReferral';
 import aiRankRoutes from './routesAiRank';
 import keywordRoutes from './routesKeyword';
 import unionRoutes from './routesUnion';
-
-// Configure dotenv to load environment variables
-dotenv.config();
+import healthRoutes from './routesHealth';
 
 // Initialize Express app
 const app = express();
@@ -20,6 +18,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'API server is running!' });
 });
+
+// Mount health routes first
+app.use('/health', healthRoutes);
 
 // Mount router from './routesSocial' at the path '/social'
 app.use('/social', socialRoutes);

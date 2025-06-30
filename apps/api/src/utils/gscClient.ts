@@ -1,3 +1,4 @@
+import '../config'; // Load environment variables first
 import { google } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 import * as fs from 'fs';
@@ -7,6 +8,7 @@ import * as path from 'path';
 class GSCClient {
   private auth: GoogleAuth | null = null;
   private searchConsole: any = null;
+  private apiKey: string | null = null;
   private readonly siteUrl = 'https://northpointtriallaw.com/';
 
   constructor() {
@@ -15,10 +17,27 @@ class GSCClient {
 
   private initializeClient() {
     try {
+      const gscApiKey = process.env.GSC_API_KEY;
       const serviceKeyPath = process.env.GSC_SERVICE_KEY;
       
+      // Try API key first
+      if (gscApiKey) {
+        console.log('Initializing GSC with API key...');
+        this.apiKey = gscApiKey;
+        
+        // Initialize Search Console API with API key
+        this.searchConsole = google.searchconsole({
+          version: 'v1',
+          auth: gscApiKey,
+        });
+
+        console.log('Google Search Console client initialized with API key');
+        return;
+      }
+      
+      // Fall back to service account if no API key
       if (!serviceKeyPath) {
-        console.warn('GSC_SERVICE_KEY not configured');
+        console.warn('Neither GSC_API_KEY nor GSC_SERVICE_KEY configured');
         return;
       }
 
@@ -31,6 +50,8 @@ class GSCClient {
         return;
       }
 
+      console.log('Initializing GSC with service account...');
+      
       // Create Google Auth instance
       this.auth = new google.auth.GoogleAuth({
         keyFile: fullPath,
@@ -43,15 +64,21 @@ class GSCClient {
         auth: this.auth,
       });
 
-      console.log('Google Search Console client initialized successfully');
+      console.log('Google Search Console client initialized with service account');
     } catch (error) {
       console.error('Error initializing GSC client:', error);
       this.auth = null;
       this.searchConsole = null;
+      this.apiKey = null;
     }
   }
 
   async authenticate(): Promise<boolean> {
+    // If using API key, no separate authentication needed
+    if (this.apiKey) {
+      return true;
+    }
+
     if (!this.auth) {
       console.error('GSC client not initialized');
       return false;
@@ -77,7 +104,7 @@ class GSCClient {
     }>;
     rowLimit?: number;
   }) {
-    if (!this.searchConsole || !this.auth) {
+    if (!this.searchConsole) {
       throw new Error('GSC client not initialized');
     }
 
@@ -163,7 +190,7 @@ class GSCClient {
   }
 
   isInitialized(): boolean {
-    return this.auth !== null && this.searchConsole !== null;
+    return this.searchConsole !== null && (this.apiKey !== null || this.auth !== null);
   }
 }
 
