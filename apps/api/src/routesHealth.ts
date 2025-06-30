@@ -100,20 +100,48 @@ router.get('/status', async (req: Request, res: Response) => {
           latency: `${Date.now() - gscStart}ms`,
           statusType: 'success'
         };
-      } else if (gscInitialized && !gscAuthenticated) {
-        healthStatus.services.searchConsole = {
-          status: 'auth failed',
-          latency: `${Date.now() - gscStart}ms`,
-          statusType: 'error'
-        };
-        healthStatus.overall = 'degraded';
       } else {
-        healthStatus.services.searchConsole = {
-          status: 'setup required',
-          latency: '--',
-          statusType: 'error'
-        };
-        healthStatus.overall = 'degraded';
+        // Check the actual GSC configuration status
+        const hasApiKey = process.env.GSC_API_KEY;
+        const hasServiceKey = process.env.GSC_SERVICE_KEY;
+        
+        if (hasServiceKey) {
+          // Service key is configured but file might not exist or auth failed
+          const fs = require('fs');
+          const path = require('path');
+          const fullPath = path.resolve(process.cwd(), hasServiceKey);
+          const serviceKeyExists = fs.existsSync(fullPath);
+          
+          if (!serviceKeyExists) {
+            healthStatus.services.searchConsole = {
+              status: 'demo mode (service key file missing)',
+              latency: '--',
+              statusType: 'warning',
+              message: `Service key file not found at: ${hasServiceKey}`
+            };
+          } else {
+            healthStatus.services.searchConsole = {
+              status: 'auth failed',
+              latency: `${Date.now() - gscStart}ms`,
+              statusType: 'error'
+            };
+            healthStatus.overall = 'degraded';
+          }
+        } else if (hasApiKey) {
+          healthStatus.services.searchConsole = {
+            status: 'demo mode (API key not supported)',
+            latency: '--',
+            statusType: 'warning',
+            message: 'GSC requires OAuth2 or service account auth'
+          };
+        } else {
+          healthStatus.services.searchConsole = {
+            status: 'demo mode (not configured)',
+            latency: '--',
+            statusType: 'warning', 
+            message: 'GSC_SERVICE_KEY not configured'
+          };
+        }
       }
     } catch (error) {
       healthStatus.services.searchConsole = {
