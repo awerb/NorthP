@@ -168,7 +168,7 @@ The `schema.sql` includes:
 ### Backend API (Railway URL)
 ```bash
 # Test all endpoints
-curl https://your-app.railway.app/social/generate -X POST -H "Content-Type: application/json" -d '{"platform":"twitter","topic":"personal injury law"}'
+curl https://your-app.railway.app/social/generate -X POST -H "Content-Type: application/json" -d '{"prompt":"personal injury law content for twitter"}'
 curl https://your-app.railway.app/news/all
 curl https://your-app.railway.app/referral/outbox
 curl https://your-app.railway.app/ai/rank -X POST -H "Content-Type: application/json" -d '{"url":"https://northpointtriallaw.com","keywords":["personal injury"],"models":["gpt-4"]}'

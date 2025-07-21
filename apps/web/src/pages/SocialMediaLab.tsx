@@ -38,9 +38,7 @@ export default function SocialMediaLab() {
     setResults([]);
     try {
       const res = await axios.post('/api/social/generate', { 
-        platform,
-        topic,
-        tone 
+        prompt: topic  // API expects 'prompt' parameter, not 'topic'
       });
       setResults(res.data);
     } catch (err) {

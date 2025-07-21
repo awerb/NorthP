@@ -149,7 +149,7 @@ psql $DATABASE_URL < schema.sql
 ## 📊 API Endpoints
 
 ### Social Media
-- `POST /social/generate` - Generate tweet captions
+- `POST /social/generate` - Generate social media content (requires "prompt" parameter)
 
 ### News
 - `GET /news` - Fetch legal industry news
