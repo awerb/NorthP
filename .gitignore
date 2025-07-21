@@ -54,3 +54,9 @@ temp/
 
 # Netlify deployment files
 .netlify/
+
+# Google Service Account Keys (sensitive)
+apps/api/keys/
+*.json
+!package*.json
+!tsconfig*.json
