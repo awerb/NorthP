@@ -157,8 +157,34 @@ const fetchEventRegistry = async (): Promise<Article[]> => {
   try {
     const apiKey = process.env.EVENT_REGISTRY_API_KEY;
     if (!apiKey) {
-      console.warn('EVENT_REGISTRY_API_KEY not configured');
-      return [];
+      console.warn('EVENT_REGISTRY_API_KEY not configured, returning demo articles');
+      // Return demo articles when API key is not available
+      return [
+        {
+          title: "Major Personal Injury Settlement Reached in San Francisco",
+          url: "https://example.com/major-settlement-sf",
+          summary: "A significant personal injury case has been settled for $3.2 million involving a construction accident in downtown San Francisco.",
+          image_url: undefined,
+          published_at: new Date().toISOString(),
+          source: "Demo Legal News"
+        },
+        {
+          title: "New California Laws Affect Personal Injury Claims",
+          url: "https://example.com/new-ca-laws-injury",
+          summary: "Recent legislative changes in California are expected to impact how personal injury claims are processed and compensated.",
+          image_url: undefined,
+          published_at: new Date(Date.now() - 3600000).toISOString(),
+          source: "Demo Law Review"
+        },
+        {
+          title: "Medical Malpractice Case Victory for Bay Area Firm",
+          url: "https://example.com/malpractice-victory",
+          summary: "Local personal injury law firm secures $1.8 million verdict in medical malpractice case involving surgical complications.",
+          image_url: undefined,
+          published_at: new Date(Date.now() - 7200000).toISOString(),
+          source: "Demo Medical Legal"
+        }
+      ];
     }
 
     // Event Registry API endpoint for article search
@@ -215,6 +241,38 @@ const fetchEventRegistry = async (): Promise<Article[]> => {
     }
 
     console.log(`Fetched ${articles.length} articles from Event Registry`);
+    
+    // If no articles from API, return demo articles for development
+    if (articles.length === 0) {
+      console.log('No articles from Event Registry API, returning demo articles');
+      return [
+        {
+          title: "Major Personal Injury Settlement Reached in San Francisco",
+          url: "https://example.com/major-settlement-sf",
+          summary: "A significant personal injury case has been settled for $3.2 million involving a construction accident in downtown San Francisco.",
+          image_url: undefined,
+          published_at: new Date().toISOString(),
+          source: "Demo Legal News"
+        },
+        {
+          title: "New California Laws Affect Personal Injury Claims", 
+          url: "https://example.com/new-ca-laws-injury",
+          summary: "Recent legislative changes in California are expected to impact how personal injury claims are processed and compensated.",
+          image_url: undefined,
+          published_at: new Date(Date.now() - 3600000).toISOString(),
+          source: "Demo Law Review"
+        },
+        {
+          title: "Medical Malpractice Case Victory for Bay Area Firm",
+          url: "https://example.com/malpractice-victory", 
+          summary: "Local personal injury law firm secures $1.8 million verdict in medical malpractice case involving surgical complications.",
+          image_url: undefined,
+          published_at: new Date(Date.now() - 7200000).toISOString(),
+          source: "Demo Medical Legal"
+        }
+      ];
+    }
+    
     return articles;
   } catch (error) {
     console.error('Error fetching from Event Registry:', error);

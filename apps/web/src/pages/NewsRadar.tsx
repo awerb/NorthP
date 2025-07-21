@@ -30,7 +30,7 @@ export default function NewsRadar() {
   const [error, setError] = useState<string | null>(null);
 
   // Get API base URL
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
   // Fetch articles
   const fetchArticles = async () => {
