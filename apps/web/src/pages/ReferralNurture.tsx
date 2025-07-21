@@ -56,11 +56,14 @@ const ReferralNurture: React.FC = () => {
   const [checkMessage, setCheckMessage] = useState<string | null>(null);
   const [sendingDrafts, setSendingDrafts] = useState<Set<number>>(new Set());
 
+  // Get API base URL
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
   // Fetch drafts from the API
   const fetchDrafts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get<OutboxResponse>('/api/referral/outbox');
+      const response = await axios.get<OutboxResponse>(`${API_BASE}/referral/outbox`);
       setDrafts(response.data.drafts);
     } catch (error) {
       console.error('Error fetching drafts:', error);
@@ -86,7 +89,7 @@ const ReferralNurture: React.FC = () => {
       setUploadLoading(true);
       setUploadMessage(null);
       
-      const response = await axios.post<UploadResponse>('/api/referral/upload', formData, {
+      const response = await axios.post<UploadResponse>(`${API_BASE}/referral/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -109,7 +112,7 @@ const ReferralNurture: React.FC = () => {
       setCheckLoading(true);
       setCheckMessage(null);
       
-      const response = await axios.post<CheckResponse>('/api/referral/check');
+      const response = await axios.post<CheckResponse>(`${API_BASE}/referral/check`);
       
       setCheckMessage(`✅ ${response.data.message}`);
       setLastChecked(new Date().toLocaleString());
@@ -128,7 +131,7 @@ const ReferralNurture: React.FC = () => {
     try {
       setSendingDrafts(prev => new Set([...prev, draftId]));
       
-      await axios.patch(`/api/referral/outbox/${draftId}/sent`);
+      await axios.patch(`${API_BASE}/referral/outbox/${draftId}/sent`);
       
       // Remove the draft from the list (fade out effect)
       setDrafts(prev => prev.filter(draft => draft.id !== draftId));

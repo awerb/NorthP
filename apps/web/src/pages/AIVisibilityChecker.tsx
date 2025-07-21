@@ -19,6 +19,9 @@ export default function AIVisibilityChecker() {
   const [loading, setLoading] = useState(false);
   const [newKeyword, setNewKeyword] = useState('');
 
+  // Get API base URL
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
   const availableModels = [
     { id: 'gpt-4', name: 'GPT-4', icon: '🤖', status: 'active' },
     { id: 'claude-3', name: 'Claude 3', icon: '🧠', status: 'active' },
@@ -47,7 +50,7 @@ export default function AIVisibilityChecker() {
     
     setLoading(true);
     try {
-      const res = await axios.post('/api/ai/rank', {
+      const res = await axios.post(`${API_BASE}/ai/rank`, {
         url,
         keywords,
         models

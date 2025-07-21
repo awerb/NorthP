@@ -9,6 +9,9 @@ export default function SocialMediaLab() {
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
+  // Get API base URL
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
   const platforms = [
     { id: 'twitter', name: 'Twitter/X', icon: '𝕏', charLimit: 280 },
     { id: 'linkedin', name: 'LinkedIn', icon: '💼', charLimit: 3000 },
@@ -37,7 +40,7 @@ export default function SocialMediaLab() {
     setLoading(true);
     setResults([]);
     try {
-      const res = await axios.post('/api/social/generate', { 
+      const res = await axios.post(`${API_BASE}/social/generate`, { 
         prompt: topic  // API expects 'prompt' parameter, not 'topic'
       });
       setResults(res.data);
