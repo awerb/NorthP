@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import Breadcrumb from '../components/Breadcrumb';
@@ -60,7 +60,7 @@ const ReferralNurture: React.FC = () => {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
   // Fetch drafts from the API
-  const fetchDrafts = async () => {
+  const fetchDrafts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get<OutboxResponse>(`${API_BASE}/referral/outbox`);
@@ -70,12 +70,12 @@ const ReferralNurture: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
   // Load drafts on component mount
   useEffect(() => {
     fetchDrafts();
-  }, []);
+  }, [fetchDrafts]);
 
   // Handle CSV file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,8 +99,13 @@ const ReferralNurture: React.FC = () => {
       
       // Clear the file input
       event.target.value = '';
-    } catch (error: any) {
-      setUploadMessage(`❌ Error: ${error.response?.data?.error || 'Failed to upload file'}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error && 
+        typeof error.response === 'object' && error.response && 
+        'data' in error.response && typeof error.response.data === 'object' &&
+        error.response.data && 'error' in error.response.data
+        ? error.response.data.error : 'Failed to upload file';
+      setUploadMessage(`❌ Error: ${errorMessage}`);
     } finally {
       setUploadLoading(false);
     }
@@ -119,8 +124,13 @@ const ReferralNurture: React.FC = () => {
       
       // Refetch drafts after checking
       await fetchDrafts();
-    } catch (error: any) {
-      setCheckMessage(`❌ Error: ${error.response?.data?.error || 'Failed to check for updates'}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error && 
+        typeof error.response === 'object' && error.response && 
+        'data' in error.response && typeof error.response.data === 'object' &&
+        error.response.data && 'error' in error.response.data
+        ? error.response.data.error : 'Failed to check for updates';
+      setCheckMessage(`❌ Error: ${errorMessage}`);
     } finally {
       setCheckLoading(false);
     }
@@ -135,9 +145,14 @@ const ReferralNurture: React.FC = () => {
       
       // Remove the draft from the list (fade out effect)
       setDrafts(prev => prev.filter(draft => draft.id !== draftId));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error marking draft as sent:', error);
-      alert(`Error: ${error.response?.data?.error || 'Failed to mark draft as sent'}`);
+      const errorMessage = error instanceof Error && 'response' in error && 
+        typeof error.response === 'object' && error.response && 
+        'data' in error.response && typeof error.response.data === 'object' &&
+        error.response.data && 'error' in error.response.data
+        ? error.response.data.error : 'Failed to mark draft as sent';
+      alert(`Error: ${errorMessage}`);
     } finally {
       setSendingDrafts(prev => {
         const newSet = new Set(prev);

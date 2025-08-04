@@ -102,7 +102,7 @@ export default function CreativePlayground() {
     }
   };
 
-  const useTemplate = (templatePrompt: string) => {
+  const applyTemplate = (templatePrompt: string) => {
     setPrompt(templatePrompt);
   };
 
@@ -205,7 +205,7 @@ export default function CreativePlayground() {
               <h3 className="font-medium text-slate-900 mb-2">{template.title}</h3>
               <p className="text-sm text-slate-600 mb-3">{template.prompt}</p>
               <button
-                onClick={() => useTemplate(template.prompt)}
+                onClick={() => applyTemplate(template.prompt)}
                 className="btn-ghost text-sm"
               >
                 Use Template

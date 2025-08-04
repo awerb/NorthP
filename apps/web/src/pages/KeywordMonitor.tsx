@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 interface KeywordMetric {
@@ -29,7 +29,7 @@ export default function KeywordMonitor() {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
   // Fetch keyword status
-  const fetchStatus = async () => {
+  const fetchStatus = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE}/keywords/status`);
       if (response.data.success) {
@@ -39,10 +39,10 @@ export default function KeywordMonitor() {
       console.error('Error fetching keyword status:', err);
       setError('Unable to check Google Search Console status');
     }
-  };
+  }, [API_BASE]);
 
   // Fetch keyword metrics
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setError(null);
       const response = await axios.get(`${API_BASE}/keywords/metrics`);
@@ -55,7 +55,7 @@ export default function KeywordMonitor() {
       console.error('Error fetching keyword metrics:', err);
       setError('Unable to connect to keyword tracking service');
     }
-  };
+  }, [API_BASE]);
 
   // Update keyword data from GSC
   const updateKeywords = async () => {
@@ -80,7 +80,7 @@ export default function KeywordMonitor() {
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [fetchStatus, fetchMetrics]);
 
   // Format percentage
   const formatPercent = (value: number) => {

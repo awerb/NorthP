@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 interface Campaign {
@@ -42,7 +42,7 @@ export default function UnionStrong() {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
   // Fetch dashboard data
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setError(null);
       const response = await axios.get(`${API_BASE}/union/dashboard`);
@@ -57,7 +57,7 @@ export default function UnionStrong() {
       console.error('Error fetching union data:', err);
       setError('Unable to connect to union service');
     }
-  };
+  }, [API_BASE]);
 
   // Join a campaign
   const joinCampaign = async (campaignId: number) => {
@@ -87,7 +87,7 @@ export default function UnionStrong() {
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [fetchDashboardData]);
 
   // Format date
   const formatDate = (dateString: string) => {

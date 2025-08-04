@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 interface NewsArticle {
@@ -33,7 +33,7 @@ export default function NewsRadar() {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
   // Fetch articles
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       setError(null);
       const response = await axios.get(`${API_BASE}/news/all`);
@@ -46,10 +46,10 @@ export default function NewsRadar() {
       console.error('Error fetching articles:', err);
       setError('Unable to connect to news service');
     }
-  };
+  }, [API_BASE]);
 
   // Fetch stats
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE}/news/stats`);
       if (response.data.success) {
@@ -58,7 +58,7 @@ export default function NewsRadar() {
     } catch (err) {
       console.error('Error fetching stats:', err);
     }
-  };
+  }, [API_BASE]);
 
   // Refresh news
   const refreshNews = async () => {
@@ -83,7 +83,7 @@ export default function NewsRadar() {
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [fetchArticles, fetchStats]);
 
   // Get unique tags
   const uniqueTags = ['all', ...Array.from(new Set(articles.map(a => a.tag).filter((tag): tag is string => Boolean(tag))))];
